@@ -3,6 +3,11 @@ import subprocess
 import requests
 from pathlib import Path
 import datetime
+import platform
+
+FFMPEG = "ffmpeg"
+if platform.system() == "Windows":
+    FFMPEG = os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
 
 
 def run_cmd(cmd):
@@ -17,7 +22,7 @@ def run_cmd(cmd):
 
 def import_video_clip(clip_path: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
     cmd = [
-        "ffmpeg", "-y",
+        FFMPEG, "-y",
         "-ss", start_time,
         "-to", end_time,
         "-i", clip_path,
@@ -57,7 +62,7 @@ def make_timelapse(
     pts_factor = 1.0 / speed_multiplier
 
     cmd = [
-        "ffmpeg", "-y",
+        FFMPEG, "-y",
         "-i", clip_path,
         "-vf", f"setpts={pts_factor}*PTS",
         "-an",
@@ -77,7 +82,7 @@ def make_podcast(clip_path: str, output_path: str = None) -> str:
         output_path = str(input_file.parent / f"{input_file.stem}_podcast.mp3")
 
     cmd = [
-        "ffmpeg", "-y",
+        FFMPEG, "-y",
         "-i", clip_path,
         "-vn",
         "-c:a", "libmp3lame",
@@ -103,7 +108,7 @@ def make_short(
         output_path = str(input_file.parent / f"{input_file.stem}_shorts.mp4")    
     
     cmd = [
-        "ffmpeg", "-y",
+        FFMPEG, "-y",
         "-i", clip_path,
         "-filter_complex", (
             # Background: scale to fill 1080x1920, then blur
