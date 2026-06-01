@@ -1,0 +1,69 @@
+<div class="make_short_container">
+    <div class="card make_short_body">
+		<h2 class="section-label">Shorts/Reels</h2>
+		<div class="field">
+			<p class="hint">Converts to short form video format by changing aspect ratio and applying blur to background</p>
+			<label for="blur">Background Blur Radius</label>
+			<input type="number" id="blur" value="20" min="0" max="100" step="1">
+			<label for="brightness">Background Brightness (0 = dark, 1 = bright)</label>
+			<input type="number" id="gamma" value="0.35" min="0" max="1" step=".01">
+		</div>
+	</div>
+
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.make_short_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function save_short_config(){
+				let data = {};
+				let payload = {}
+				
+				data['blur'] = document.getElementById('blur').value
+				data['gamma'] = document.getElementById('gamma').value
+				payload['make_short'] =  data
+				
+				// save to local storage
+				localStorage.setItem('make_short', JSON.stringify(payload))
+			}
+
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+
+				element.querySelector("#blur").onchange = () => {
+					save_short_config()
+				}
+
+				save_short_config()
+            }
+
+            window.componentRegistry.register("make_short", init)
+        })()
+    </script>
+</div>

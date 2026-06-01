@@ -1,0 +1,6 @@
+{
+    "debug": true,
+    "version": "1.1.0",
+    "local_sheet_url":"./static/sheet.csv",
+	"remote_sheet_url":""
+}

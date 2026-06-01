@@ -1,0 +1,64 @@
+<div class="log_container">
+    <div class="card log_body">
+		<details id="log_dropdown">
+			<summary id="log" >
+				<h2 class="title">Log</h2><span class="text muted">Click to expand</span><button class="btn-primary" id="clear_log">Clear Logs</button>
+			</summary>
+			<p class="log_text"></p>
+		</details>
+    </div>
+    <style>
+		.log_body{
+			padding: 1rem;
+			margin: auto auto;
+		}
+		#log{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			padding: 1rem;
+		}
+		#log_dropdown:hover{
+			cursor: pointer;
+		}
+		.log_text{
+			background-color: var(--background);
+			min-height: 20rem;
+		}
+    </style>
+    <script>
+        (function(){
+
+			async function get_log(element){
+				fetch("/log")
+					.then(response => response.json())
+					.then(json => {
+						element.querySelector(".log_text").innerHTML = ""
+						let logs = json.logs.split("\n")
+						console.log(json)
+						// last 50 lines
+						logs.slice(-10).forEach(line => {
+							element.querySelector(".log_text").innerHTML += `<p>${line}</p>`
+						})
+
+				})
+			}
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				element.querySelector("#clear_log").addEventListener("click", async () => {
+					await fetch("/clear_log")
+					get_log(element)
+				})
+				element.querySelector("#log_dropdown").addEventListener("click", () => {
+					get_log(element)
+				})
+				setInterval(() => {
+					get_log(element)
+				}, 5000)
+            }
+
+            window.componentRegistry.register("log", init)
+        })()
+    </script>
+</div>

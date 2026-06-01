@@ -1,0 +1,44 @@
+<div class="log_container">
+    <div class="log_body">
+		<h1 class="title">Weekly Schedule</h1>
+        <p class="text"></p>
+    </div>
+    <style>
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+		.log_body{
+			padding: 1rem;
+		}
+    </style>
+    <script>
+        (function(){
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "schedule_manager",
+							event: "get_weekly_schedule",
+							data: ""
+						})
+					}
+				)
+					.then(response => response.text())
+					.then(text => 
+						element.querySelector(".text").innerText = text
+					)
+        
+            }
+
+            window.componentRegistry.register("schedule", init)
+        })()
+    </script>
+</div>

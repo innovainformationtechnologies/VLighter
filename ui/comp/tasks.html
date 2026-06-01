@@ -1,0 +1,141 @@
+<div class="log_container">
+    <div class="log_body">
+		<div class="controls">
+			<div class="controls">
+				<h1 display="block">Running Tasks</h1>
+				<div class="controls">
+					<input type="text" id="task_name_input" placeholder="Task Name">
+					<button class="btn-primary" id="run_task_button"><span class="text">Run Task</button>
+					<button class="btn-primary" id="stop_all_tasks"><span class="text">Stop All Tasks</button>
+				</div>
+			</div>
+		</div>
+		<p class="output"></p>
+		<div id="tasks"></div>
+    </div>
+    <style>
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+		.log_body{
+			padding: 1rem;
+		}
+		#tasks{
+			display: flex;
+			flex-direction: row;
+			gap: 1rem;
+		}
+    </style>
+    <script>
+        (function(){
+			function get_tasks(element){
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "task_manager",
+							event: "get_running_tasks",
+							data: ""
+						})
+					}
+				)
+					.then(response => response.json())
+					.then(json => {
+						json.forEach(key => {
+							let task_el = document.createElement("div")
+							let task_name = document.createElement("span")
+							task_name.innerText = key
+							task_el.appendChild(task_name)
+
+							let stop_button = document.createElement("button")
+							stop_button.classList.add("btn-primary")
+							stop_button.innerHTML = "<span class=\"text\">x</span>"
+							stop_button.addEventListener("click", function(){
+								stop_task(key)
+							})
+							task_el.appendChild(stop_button)
+							element.appendChild(task_el)
+						})
+						
+
+
+					})
+			}
+			function stop_all_tasks(){
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "task_manager",
+							event: "stop_all_tasks",
+							data: ""
+						})
+					}
+				)
+					.then(response => response.text())
+					.then(text => 
+						get_tasks()
+					)
+			}
+			function stop_task(task_name){
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "task_manager",
+							event: "stop_task",
+							data: task_name
+						})
+					}
+				)
+					.then(response => response.text())
+					.then(text => 
+						get_tasks()
+					)
+			}
+			function run_task(){
+				const task_name = document.getElementById("task_name_input").value
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "task_manager",
+							event: "run_task",
+							data: task_name
+						})
+					}
+				)
+					.then(response => response.text())
+					.then(text => {
+							document.getElementsByClassName("output")[0].innerHTML = text
+							get_tasks()
+						}
+					)
+			}
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				document.getElementById("stop_all_tasks").addEventListener("click", stop_all_tasks)
+				document.getElementById("run_task_button").addEventListener("click", run_task)
+				get_tasks(document.getElementById("tasks"))
+				
+            }
+
+            window.componentRegistry.register("tasks", init)
+        })()
+    </script>
+</div>

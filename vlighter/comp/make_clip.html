@@ -1,0 +1,58 @@
+<div class="timelapse_container">
+    <div class="card timelapse_body">
+		<h2 class="section-label">Clip</h2>
+		<div class="field">
+			<div class="hint">Downloads a single clip</div>
+		</div>
+	</div>
+
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.current_segment_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function save_clip_config(){
+				let data = {};
+				let payload = {}
+				payload['make_clip'] =  data
+				
+				// save to local storage
+				localStorage.setItem('make_clip', JSON.stringify(payload))
+				console.log("clip payload ", payload)
+			}
+
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				save_clip_config()
+            }
+
+            window.componentRegistry.register("make_clip", init)
+        })()
+    </script>
+</div>

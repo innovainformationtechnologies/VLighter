@@ -1,0 +1,9 @@
+component,background,text,primary_color,accent_color,font_family_heading,font_family_body,font_size_base,title
+theme,#010104,#e3e4f5,#34003b,#b965c5,Impact,Arial,10,Vorchestra
+,,,,,,,,
+component,id,,,,,,,
+header,header_01,,,,,,,
+current_segment,current_segment_01,,,,,,,
+tasks,tasks_01,,,,,,,
+schedule,schedule_01,,,,,,,
+log,log_01,,,,,,,

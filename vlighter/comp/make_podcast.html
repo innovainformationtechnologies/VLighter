@@ -1,0 +1,61 @@
+<div class="podcast_container">
+    <div class="card podcast_body">
+		<h2 class="section-label">Podcast</h2>
+		<div class="field">
+			<label>Render as Audio-Only</label>
+			<div class="hint">MP3 only for now</div>
+		</div>
+	</div>
+
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.current_segment_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function save_podcast_config(){
+				let data = {"format": "mp3"};
+				let payload = {}
+				
+				payload['make_podcast'] =  data
+				
+				// save to local storage
+				localStorage.setItem('make_podcast', JSON.stringify(payload))
+			}
+			function remove_podcast_config(){
+				localStorage.removeItem('podcast')
+			}
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				save_podcast_config()
+            }
+
+            window.componentRegistry.register("make_podcast", init)
+        })()
+    </script>
+</div>

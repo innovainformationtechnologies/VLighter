@@ -1,0 +1,4 @@
+# ignore temp folder
+temp
+__pycache__
+static/logs

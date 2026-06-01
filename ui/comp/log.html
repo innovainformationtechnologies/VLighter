@@ -1,0 +1,73 @@
+<div class="log_container">
+    <div class="log_body">
+		<details id="log_dropdown">
+			<summary id="log" >
+				<h1 class="title">Log</h1><button class="btn-primary" id="clear_log"><span class="text">Clear Logs</span></button>
+			</summary>
+			<p class="log_text"></p>
+		</details>
+    </div>
+    <style>
+		.log_body{
+			padding: 1rem;
+		}
+		#log{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			padding: 1rem;
+		}
+		#log_dropdown:hover{
+			cursor: pointer;
+		}
+    </style>
+    <script>
+        (function(){
+			async function get_log(element){
+				await fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "logger",
+							event: "read",
+						})
+					}
+				)
+					.then(response => response.text())
+					.then(text => {
+						console.log(text)
+						element.querySelector(".log_text").innerText = text
+
+				})
+			}
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				element.querySelector("#clear_log").addEventListener("click", async () => {
+					await fetch("http://localhost:5000/message_bus",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								listener: "logger",
+								event: "clear",
+								data: ""
+							})
+						}
+					)
+					get_log(element)
+				})
+				element.querySelector("#log_dropdown").addEventListener("click", () => {
+					get_log(element)
+				})
+            }
+
+            window.componentRegistry.register("log", init)
+        })()
+    </script>
+</div>

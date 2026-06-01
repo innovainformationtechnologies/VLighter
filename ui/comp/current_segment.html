@@ -1,0 +1,123 @@
+<div class="current_segment_container">
+    <div class="current_segment_body">
+		<div class="controls">
+			<h1 class="title">Current Segment</h1>
+			<div class="run_segment">
+				<input type="text" id="segment_name_input" placeholder="Segment Name">
+				<button class="btn-primary" id="run_segment_button"><span class="text">Run Segment</button>
+			</div>
+		</div>
+        <div class="basic_info">
+			<div>
+				<h2>Name</h2>
+				<p class="text" id="name"></p>
+			</div>
+			<div>
+				<h2>Description</h2>
+				<p class="text" id="description"></p>
+			</div>
+			<div>
+				<h2>Info Text</h2>
+				<p class="text" id="info_text"></p>
+			</div>
+			<div>
+				<h2>Duration</h2>
+				<p class="text" id="duration"></p>
+			</div>
+			<div>
+				<h2>Reboot After Segment</h2>
+				<p class="text" id="reboot"></p>
+			</div>
+		</div>
+		
+    </div>
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.current_segment_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function get_current_segment(element){
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "segment_manager",
+							event: "get_current_segment_data",
+							data: ""
+						})
+					}
+				)
+					.then(response => response.json())
+					.then(json => {
+						element.querySelector("#name").innerText = json.name;
+						element.querySelector("#description").innerText = json.stream_data.description || "No description available.";
+						if (json.info_text){
+							Object.keys(json.info_text).forEach(key => {
+								element.querySelector(`#info_text`).innerHTML += `<p>${key}: ${json.info_text[key]}</p>`
+							})
+						} else {
+							element.querySelector(`#info_text`).innerText = "None"
+						}
+						element.querySelector("#reboot").innerText = json.reboot ? "Yes" : "No"
+						element.querySelector("#duration").innerText = json.duration ? `${json.duration} hours` : "Indefinite"
+					})
+			}
+			function run_segment(name, element){
+				fetch("http://localhost:5000/message_bus",
+					{
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							listener: "segment_manager",
+							event: "run",
+							data: name
+						})
+					}
+				)
+					.then(response => get_current_segment(element))
+			}
+
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				get_current_segment(element)
+				element.querySelector("#run_segment_button").addEventListener("click", () => {
+					run_segment(element.querySelector("#segment_name_input").value, element)	
+				})
+        
+            }
+
+            window.componentRegistry.register("current_segment", init)
+        })()
+    </script>
+</div>

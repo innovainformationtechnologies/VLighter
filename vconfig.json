@@ -1,0 +1,154 @@
+{
+    "debug": false,
+    "follow_schedule": false,
+    "initial_segment": "Vlighter",
+    "weekly_schedule": {
+        "Monday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        },
+        "Tuesday": {
+            "segments": [
+
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+            
+        },
+        "Wednesday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        },
+        "Thursday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        },
+        "Friday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        },
+        "Saturday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        },
+        "Sunday": {
+            "segments": [
+                {
+                    "name": "UI",
+                    "start": "06:00",
+                    "end": "18:00",
+                    "reboot": false
+                }
+            ]
+        }
+    },
+    "segment_data": [
+        {
+            "name": "Test",
+            "duration": 1,
+            "stream_data": {
+                "title": "Test Stream - Onyx Live 24/7",
+                "description": "This is a test stream for debugging purposes.",
+                "privacy": "public"
+            },
+            "playlist": "\\\\192.168.0.4\\extreme_ssd\\onyx\\stream\\audio\\chill_2026_4_17.xspf",
+            "gallery": "\\\\192.168.0.4\\extreme_ssd\\onyx\\stream\\visual\\gallery_1",
+            "info_text": {
+                "cta_1": "Testing the Vorchestra Automation system",
+                "cta_2": "Powered by Innova"
+            },
+            "task_list": [
+                "ui",
+                "gallery",
+                "obs",
+                "obs_start",
+                "stream_restart"
+            ]
+        },
+        {
+            "name": "UI",
+            "task_list": [
+                "ui"
+            ]
+        },
+        {
+            "name": "Vlighter",
+            "task_list": [
+                "vlighter"
+            ]
+        }
+    ],
+    "tasks": {
+        "ui": {
+            "type": "ScriptTask",
+            "name": "UI",
+            "path": "ui.py",
+            "args": [
+                {
+                    "listener": "segment_manager",
+                    "event": "get_segment_data",
+                    "data": "stream_data"
+                },
+                {
+                    "listener": "segment_manager",
+                    "event": "get_current_segment_data",
+                    "data": "info_text"
+                }
+            ]
+        },
+        "vlighter": {
+            "type": "ScriptTask",
+            "name": "Vlighter",
+            "path": "vlighter.py",
+            "args": [
+            ]
+        },
+        "test_task": {
+            "type": "ScriptTask",
+            "name": "Test",
+            "path": "test.py",
+            "args": [
+                {
+                    "listener": "segment_manager",
+                    "event": "get_current_segment_data",
+                    "data": ""
+                }
+            ],
+            "skip": false
+        }
+    }
+}

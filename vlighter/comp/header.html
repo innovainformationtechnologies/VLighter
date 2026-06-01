@@ -1,0 +1,36 @@
+<div class="header_container">
+    <div class="header_body">
+		<h1 class="title">VLighter</h1>
+		<span class="text">Stream VOD Highlight Tool</span>
+		<button class="btn-primary" id="donate">🎁</button>
+    </div>
+    <style>
+		.header_body{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			margin: auto auto;
+			padding: 1rem 2rem;
+		}
+		.header_container{
+			position: static;
+			top: 0;
+			left: 0;
+			right: 0;
+			width: 100vw;
+			z-index: 100;
+		}
+    </style>
+    <script>
+        (function(){
+			
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				element.querySelector("#donate").onclick = () => {location.href = String(data.donation_url)}
+            }
+
+            window.componentRegistry.register("header", init)
+        })()
+    </script>
+</div>

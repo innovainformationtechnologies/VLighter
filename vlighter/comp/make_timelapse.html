@@ -1,0 +1,70 @@
+<div class="timelapse_container">
+    <div class="card timelapse_body">
+		<h2 class="section-label">Timelapse</h2>
+		<div class="field">
+			<label>Speed Multiplier</label>
+			<input type="number" id="speed" value="20" min="1" step="1">
+			<div class="hint">20× turns a 9-hour session into ~27 minutes</div>
+		</div>
+	</div>
+
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.current_segment_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function save_timelapse_config(){
+				let data = {};
+				let payload = {}
+				data['speed'] = document.getElementById('speed').value
+				payload['make_timelapse'] =  data
+				
+				// save to local storage
+				localStorage.setItem('make_timelapse', JSON.stringify(payload))
+				console.log("timelapse payload ", payload)
+			}
+
+			function remove_timelapse_config(){
+				console.log('remove_timelapse_config')
+				localStorage.removeItem('timelapse')
+			}
+
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				element.querySelector("#speed").onchange = () => {
+					save_timelapse_config()
+				}
+
+				save_timelapse_config()
+            }
+
+            window.componentRegistry.register("make_timelapse", init)
+        })()
+    </script>
+</div>
