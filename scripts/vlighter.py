@@ -161,8 +161,8 @@ class UI:
 		host = "0.0.0.0"
 		port = 5501
 		f = f"http://{host}:{port}"
-		# import webbrowser
-		# webbrowser.open(f)
+		import webbrowser
+		webbrowser.open(f)
 		self.app.run(host=host, port=port, debug=True)
 
 	def stop(self):

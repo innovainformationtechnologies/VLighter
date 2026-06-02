@@ -42,7 +42,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         "-o", output_path,
         video_url,
     ]
-    if ON_WINDOWS
+    if ON_WINDOWS:
         cmd = [
             "yt-dlp",
             "--ffmpeg-location", FFMPEG,
