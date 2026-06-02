@@ -5,8 +5,9 @@ from pathlib import Path
 import datetime
 import platform
 
+ON_WINDOWS = platform.system() == "Windows"
 FFMPEG = "ffmpeg"
-if platform.system() == "Windows":
+if ON_WINDOWS:
     FFMPEG = os.path.join(os.path.dirname(__file__), "..", "bin", "ffmpeg.exe")
 
 def run_cmd(cmd):
@@ -41,6 +42,19 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         "-o", output_path,
         video_url,
     ]
+    if ON_WINDOWS
+        cmd = [
+            "yt-dlp",
+            "--ffmpeg-location", FFMPEG,
+            "--extractor-args", "youtube:player_client=web",
+            "--download-sections", f"*{start_time}-{end_time}",
+            "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
+            "-S", "vcodec:h264,res,acodec:m4a,ext",
+            "--merge-output-format", "mp4",
+            "--fixup", "never",
+            "-o", output_path,
+            video_url,
+        ]
     run_cmd(cmd)
     return output_path
 
