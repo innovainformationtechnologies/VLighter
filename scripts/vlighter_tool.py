@@ -7,8 +7,7 @@ import platform
 
 FFMPEG = "ffmpeg"
 if platform.system() == "Windows":
-    FFMPEG = os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
-
+    FFMPEG = os.path.join(os.path.dirname(__file__), "..", "ffmpeg.exe")
 
 def run_cmd(cmd):
     result = subprocess.run(cmd, text=True, capture_output=True)
