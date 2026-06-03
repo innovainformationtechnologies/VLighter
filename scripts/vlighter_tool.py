@@ -78,6 +78,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
 
         for browser in ["firefox", "chrome", "edge"]:
             try:
+                print(f"Trying {browser}")
                 try_download(base_cmd + ["--cookies-from-browser", browser])
                 return output_path
             except Exception:
