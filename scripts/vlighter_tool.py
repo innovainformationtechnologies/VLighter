@@ -1,5 +1,5 @@
 import os
-import subprocess
+import subprocess, sys
 import requests
 from pathlib import Path
 import datetime
@@ -49,7 +49,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         temp_template = output_path.replace(".mp4", "_%(id)s.%(ext)s")
 
         base_cmd = [
-            "yt-dlp",
+            sys.executable, "-m", "yt-dlp",
             "--ffmpeg-location", FFMPEG,
             "--extractor-args", "youtube:player_client=tv_embedded,web_creator",
             "--download-sections", f"*{start_time}-{end_time}",
