@@ -4,6 +4,7 @@ import requests
 from pathlib import Path
 import datetime
 import platform
+import yt_dlp
 
 ON_WINDOWS = platform.system() == "Windows"
 FFMPEG = "ffmpeg"
@@ -31,7 +32,8 @@ def import_video_clip(clip_path: str, start_time: str, end_time: str, output_pat
     run_cmd(cmd)
     return output_path
 
-def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
+
+def download_video_clip_old(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
     temp_path = output_path.replace(".mp4", "_temp.mp4")
     base_cmd = [
         "yt-dlp",
@@ -75,6 +77,26 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
     run_cmd(base_cmd)
     return output_path
 
+def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
+    ydl_opts = {
+        "outtmpl": output_path,
+        "download_section": f"*{start_time}-{end_time}",
+        "format": "bestvideo+bestaudio/best",
+        "postprocessors": [
+            {
+                "key": "FFmpegVideoConvertor",
+                "preferedformat": "mp4",
+            },
+            {
+                "key": "FFmpegMetadata",
+            },
+        ],
+    }
+    if ON_WINDOWS:
+        ydl_opts["ffmpeg_location"] = FFMPEG
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download([video_url])
+    return output_path
 
 def make_timelapse(
     clip_path: str,
