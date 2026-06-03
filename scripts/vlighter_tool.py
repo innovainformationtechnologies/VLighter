@@ -32,7 +32,8 @@ def import_video_clip(clip_path: str, start_time: str, end_time: str, output_pat
     return output_path
 
 def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
-    cmd = [
+    temp_path = output_path.replace(".mp4", "_temp.mp4")
+    base_cmd = [
         "yt-dlp",
         "--download-sections", f"*{start_time}-{end_time}",
         "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
@@ -44,21 +45,34 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         video_url,
     ]
     if ON_WINDOWS:
-        cmd = [
+        base_cmd = [
             "yt-dlp",
-            "--ffmpeg-location", FFMPEG,
-            "--extractor-args", "youtube:player_client=tv_embedded,web_creator,mweb",
-            "--cookies-from-browser", "chrome","firefox","edge",
+            "--ffmpeg-location", FFMPEG_BIN,
+            "--extractor-args", "youtube:player_client=tv_embedded,web_creator",
             "--download-sections", f"*{start_time}-{end_time}",
             "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
             "-S", "vcodec:h264,res,acodec:m4a,ext",
             "--merge-output-format", "mp4",
             "--no-part",
             "--fixup", "never",
-            "-o", output_path,
+            "-o", temp_path,
             video_url,
         ]
-    run_cmd(cmd)
+        try:
+            run_cmd(base_cmd)
+            os.rename(temp_path, output_path)
+            return output_path
+        except Exception:
+            pass
+
+        for browser in ["firefox", "chrome", "edge"]:
+            try:
+                run_cmd(base_cmd + ["--cookies-from-browser", browser])
+                os.rename(temp_path, output_path)
+                return output_path
+            except Exception:
+                continue
+    run_cmd(base_cmd)
     return output_path
 
 
