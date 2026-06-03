@@ -4,7 +4,7 @@ import requests
 from pathlib import Path
 import datetime
 import platform
-import yt-dlp
+import yt_dlp
 
 ON_WINDOWS = platform.system() == "Windows"
 FFMPEG = "ffmpeg"
@@ -94,7 +94,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
     }
     if ON_WINDOWS:
         ydl_opts["ffmpeg_location"] = FFMPEG
-    with yt-dlp.YoutubeDL(ydl_opts) as ydl:
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
     return output_path
 
