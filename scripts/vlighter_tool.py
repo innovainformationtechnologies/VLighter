@@ -4,7 +4,6 @@ import requests
 from pathlib import Path
 import datetime
 import platform
-import yt_dlp
 
 ON_WINDOWS = platform.system() == "Windows"
 FFMPEG = "ffmpeg"
