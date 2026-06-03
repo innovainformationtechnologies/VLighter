@@ -33,7 +33,7 @@ def import_video_clip(clip_path: str, start_time: str, end_time: str, output_pat
     return output_path
 
 
-def download_video_clip_old(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
+def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
     temp_path = output_path.replace(".mp4", "_temp.mp4")
     base_cmd = [
         "yt-dlp",
@@ -47,9 +47,11 @@ def download_video_clip_old(video_url: str, start_time: str, end_time: str, outp
         video_url,
     ]
     if ON_WINDOWS:
+        temp_template = output_path.replace(".mp4", "_%(id)s.%(ext)s")
+
         base_cmd = [
             "yt-dlp",
-            "--ffmpeg-location", FFMPEG,
+            "--ffmpeg-location", FFMPEG_BIN,
             "--extractor-args", "youtube:player_client=tv_embedded,web_creator",
             "--download-sections", f"*{start_time}-{end_time}",
             "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
@@ -57,46 +59,35 @@ def download_video_clip_old(video_url: str, start_time: str, end_time: str, outp
             "--merge-output-format", "mp4",
             "--no-part",
             "--fixup", "never",
-            "-o", temp_path,
+            "-o", temp_template,
             video_url,
         ]
+
+        def try_download(cmd):
+            run_cmd(cmd)
+            # Find whatever yt-dlp named the file and rename it
+            pattern = output_path.replace(".mp4", "_*.mp4")
+            matches = glob.glob(pattern)
+            if matches:
+                os.rename(matches[0], output_path)
+
         try:
-            run_cmd(base_cmd)
-            os.rename(temp_path, output_path)
+            try_download(base_cmd)
             return output_path
         except Exception:
             pass
 
         for browser in ["firefox", "chrome", "edge"]:
             try:
-                run_cmd(base_cmd + ["--cookies-from-browser", browser])
-                os.rename(temp_path, output_path)
+                try_download(base_cmd + ["--cookies-from-browser", browser])
                 return output_path
             except Exception:
                 continue
+
+        raise RuntimeError("Failed to download video. Please make sure you are signed into YouTube in your browser.")
     run_cmd(base_cmd)
     return output_path
 
-def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
-    ydl_opts = {
-        "outtmpl": output_path,
-        "download_section": f"*{start_time}-{end_time}",
-        "format": "bestvideo+bestaudio/best",
-        "postprocessors": [
-            {
-                "key": "FFmpegVideoConvertor",
-                "preferedformat": "mp4",
-            },
-            {
-                "key": "FFmpegMetadata",
-            },
-        ],
-    }
-    if ON_WINDOWS:
-        ydl_opts["ffmpeg_location"] = FFMPEG
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-    return output_path
 
 def make_timelapse(
     clip_path: str,
