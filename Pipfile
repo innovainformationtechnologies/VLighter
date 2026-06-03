@@ -8,7 +8,7 @@ requests = "*"
 flask = "*"
 flask-cors = "*"
 schedule = "*"
-yt_dlp = "*"
+yt-dlp = "*"
 
 [dev-packages]
 
