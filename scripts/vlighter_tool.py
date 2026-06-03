@@ -8,7 +8,7 @@ import platform
 ON_WINDOWS = platform.system() == "Windows"
 FFMPEG = "ffmpeg"
 if ON_WINDOWS:
-    FFMPEG = os.path.join(os.path.dirname(__file__), "..", "bin", "ffmpeg.exe")
+    FFMPEG = os.path.join(os.getcwd(), "bin", "ffmpeg.exe")
 
 def run_cmd(cmd):
     result = subprocess.run(cmd, text=True, capture_output=True)
@@ -46,7 +46,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         cmd = [
             "yt-dlp",
             "--ffmpeg-location", FFMPEG,
-            "--extractor-args", "youtube:player_client=web",
+            "--extractor-args", "youtube:player_client=web_creator",
             "--download-sections", f"*{start_time}-{end_time}",
             "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
             "-S", "vcodec:h264,res,acodec:m4a,ext",
