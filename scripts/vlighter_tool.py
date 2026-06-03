@@ -46,7 +46,7 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
         cmd = [
             "yt-dlp",
             "--ffmpeg-location", FFMPEG,
-            "--extractor-args", "youtube:player_client=web_creator",
+            "--extractor-args", "youtube:player_client=tv_embedded,web_creator,mweb",
             "--cookies-from-browser", "chrome",
             "--download-sections", f"*{start_time}-{end_time}",
             "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
