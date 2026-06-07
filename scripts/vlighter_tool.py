@@ -11,7 +11,8 @@ if ON_WINDOWS:
     FFMPEG = os.path.join(os.getcwd(), "bin", "ffmpeg.exe")
 
 def run_cmd(cmd):
-    result = subprocess.run(cmd, text=True, capture_output=True)
+    print("Running command: ", " ".join(cmd))
+    result = subprocess.run(cmd, text=True)
     if result.returncode != 0:
         raise RuntimeError(
             f"Command failed with return code {result.returncode}\n"
@@ -33,19 +34,22 @@ def import_video_clip(clip_path: str, start_time: str, end_time: str, output_pat
 
 
 def download_video_clip(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
-    temp_path = output_path.replace(".mp4", "_temp.mp4")
+    print("Downloading clip from YouTube…")
     base_cmd = [
         "yt-dlp",
         "--download-sections", f"*{start_time}-{end_time}",
         "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
         "-S", "vcodec:h264,res,acodec:m4a,ext",
-        "--merge-output-format", "mp4",
-        "--no-part",
+        "--merge-output-format", "mp4", "--no-playlist",
         "--fixup", "never",
         "-o", output_path,
         video_url,
     ]
-    if ON_WINDOWS:
+    run_cmd(base_cmd)
+    print("Clip downloaded.")
+    return output_path
+
+def download_video_clip_windows(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
         temp_template = output_path.replace(".mp4", "_%(id)s.%(ext)s")
 
         base_cmd = [
@@ -85,9 +89,6 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
                 continue
 
         raise RuntimeError("Failed to download video. Please make sure you are signed into YouTube in your browser.")
-    run_cmd(base_cmd)
-    return output_path
-
 
 def make_timelapse(
     clip_path: str,
@@ -176,15 +177,6 @@ def make_short(
     
     return output_path
 
-services = {
-    "import_video":import_video_clip,
-    "download_video":download_video_clip,
-    "make_timelapse":make_timelapse,
-    "make_podcast":make_podcast,
-    "make_clip":make_clip,
-    "make_short":make_short
-}
-
 def full_video_pipeline(
     video_url: str,
     start_time: str,
@@ -212,6 +204,7 @@ def full_video_pipeline(
 
 
 def run_pipeline(pipeline, output_dir) -> str:
+    print("Running pipeline: ", pipeline)
     '''
     pipeline = {
         "download_video":{
@@ -241,6 +234,9 @@ def run_pipeline(pipeline, output_dir) -> str:
             case "import_video":
                 import_video_clip(args["path"], args["start"], args["end"], clip_path)
             case "download_video":
+                if ON_WINDOWS:
+                    download_video_clip_windows(args["url"], args["start"], args["end"], clip_path)
+                    continue
                 download_video_clip(args["url"], args["start"], args["end"], clip_path)
             case "make_timelapse":
                 make_timelapse(clip_path, args["speed"], timelapse_path)
@@ -261,4 +257,53 @@ def run_pipeline(pipeline, output_dir) -> str:
 
 
 if __name__ == "__main__":
-    pass
+    import argparse
+
+    pipelines = {
+        # "import_video":{"func":import_video_clip, "args":["path", "start", "end"]},
+        # "download_video":{"func":download_video_clip, "args":["url", "start", "end"]},
+        "make_timelapse":{"func":make_timelapse, "args":["clip_path", "speed_multiplier"]},
+        "make_podcast":{"func":make_podcast, "args":["clip_path"]},
+        "make_clip":{"func":make_clip, "args":["clip_path"]},
+        "make_short":{"func":make_short, "args":["clip_path", "blur", "gamma"]}
+    }
+    temp_dir = os.path.join(os.getcwd(), "temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    out_dir = Path(temp_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    clip_path = str(out_dir / "clip.mp4")
+    timelapse_path = str(out_dir / "timelapse.mp4")
+    short_path = str(out_dir / "short.mp4")
+    podcast_path = str(out_dir / "podcast.mp3")
+
+    # Phase 1: create pipeline
+    '''
+    pipeline = {
+        "download_video":{
+            "video_url":"",
+            "start_time":"",
+            "end_time":""
+        },
+        "make_timelapse":{
+            "clip_path":"",
+            "speed_multiplier":20.0
+        }
+    }
+    '''
+    pipeline = {}
+    source = input("Enter source url: ")
+    start = input("Enter start time: ")
+    end = input("Enter end time: ")
+    pipeline["download_video"] = {"url":source, "start":start, "end":end}
+
+    second_step = input(f"Enter next pipeline step:\n{pipelines.keys()}\n")
+    idx = 0
+    for step in pipelines[second_step]["args"]:
+        pipeline[second_step] = {}
+        if step == "clip_path":
+            pipeline[second_step]["clip_path"] = clip_path
+            continue
+        pipeline[second_step][step] = input(f"Enter {step}: ")
+        idx += 1
+    # Phase 2: run pipeline
+    run_pipeline(pipeline, out_dir)

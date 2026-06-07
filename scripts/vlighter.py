@@ -39,7 +39,7 @@ class UI:
 
 	def run_pipeline(self,data):
 		global job_running, output_file, temp_dir
-		log("▶ Running pipeline…")
+		log(f"▶ Running pipeline with data: {data}")
 		job_running = True
 		output_file = None
 
@@ -163,7 +163,7 @@ class UI:
 		f = f"http://{host}:{port}"
 		import webbrowser
 		webbrowser.open(f)
-		self.app.run(host=host, port=port, debug=True)
+		self.app.run(host=host, port=port, debug=False)
 
 	def stop(self):
 		self.app.stop()
