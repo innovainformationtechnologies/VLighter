@@ -1,14 +1,20 @@
-<div class="donation_url_container">
-    <div class="donation_url_body">
+<div class="home_container">
+    <div class="home_body">
 		<div>
 			<h2>Your Donation url</h2>
-			<p class="muted">This is how you will receive donations for providing the service</p>
 		</div>
-		<div class="controls">
+		<div class="flex column">
+			<label class="muted">This is how you will receive donations for providing the service</label>
 			<input type="text" id="donation_url_input" placeholder="Donation url">
 			<button class="btn-primary" id="update_button">Update</button>
 		</div>
-		
+		<div id="registration">
+			<h2>Register Your Server</h2>
+			<div class="flex column">
+				<label for="email_input" class="muted">This is how you will be notified about your server's registration status</label>
+				<input type="email" id="email_input" placeholder="Your Email">
+				<button class="btn-primary" id="register_button">Register</button>
+			</div>
     </div>
     <style>
 		.basic_info{

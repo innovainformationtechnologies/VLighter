@@ -106,7 +106,7 @@ nav, #nav, .navbar-default, .navbar-static-top{
         background-color: var(--surface) !important;
         color: var(--text) !important;
     }
-    &[type=text]{
+    &[type=text], &[type=password], &[type=email]{
         width: 100%;
     }
     &:disabled{
