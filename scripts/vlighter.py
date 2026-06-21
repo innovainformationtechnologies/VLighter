@@ -8,10 +8,10 @@ from flask import Flask, render_template, request, jsonify, Response, send_file
 import flask_cors
 
 sys.path.insert(0, str(Path(__file__).parent))
-from vlighter_tool import run_pipeline
+import vlighter_tool
 
 log_queue: queue.Queue = queue.Queue()
-job_running = False
+job_status = "idle"
 output_file: str = None     # path to the finished timelapse, ready for download
 temp_dir: str = None        # current job's temp directory
 
@@ -38,23 +38,26 @@ class UI:
 		self.run()
 
 	def run_pipeline(self,data):
-		global job_running, output_file, temp_dir
+		global job_status, output_file, temp_dir
 		log(f"▶ Running pipeline with data: {data}")
-		job_running = True
+		job_status = "running"
 		output_file = None
 
-		temp_dir = os.path.join(os.getcwd(), "temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+		temp_dir = os.path.join("vlighter","temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
 		video_path = os.path.join(temp_dir, "video.mp4")
 		clip_path      = os.path.join(temp_dir, "clip.mp4")
 		timelapse_path = os.path.join(temp_dir, "timelapse.mp4")
-
+		result = None
 		# Clean up temp dir from previous run
 		# import shutil
 		# shutil.rmtree(temp_dir, ignore_errors=True)
 		# Path(temp_dir).mkdir(parents=True, exist_ok=True)
 
 		try:
-			run_pipeline(data, temp_dir)
+			result = vlighter_tool.run_pipeline(data, temp_dir)
+			log(f"Result: {result}")
+			if result["success"] == True:
+				output_file = result["output_file"]
 			# log("▶ Downloading clip from YouTube…")
 			# download_video_clip(
 			# 	video_url = data["url"],
@@ -81,6 +84,7 @@ class UI:
 			# log("✓ Done — your download will start shortly.")
 
 		except Exception as e:
+			job_status = "error"
 			log(f"✗ Error: {e}")
 			# Clean up temp dir on failure
 			import shutil
@@ -88,8 +92,12 @@ class UI:
 			temp_dir = None
 
 		finally:
-			job_running = False
-			return {"job_running": job_running, "output_file": output_file, "temp_dir": temp_dir}
+			if result and result["success"] == True:
+				log(f"✓ Done — your download will start shortly. {result}")
+				job_status = "success"
+			else:
+				job_status = "idle"
+			return {"job_status": job_status, "output_file": output_file, "temp_dir": temp_dir}
 			
         
 
@@ -104,14 +112,14 @@ class UI:
 		@self.app.route("/run", methods=["POST"])
 		def run():
 			log("receiving run request...")
-			global output_file, job_running,temp_dir
-			if job_running:
+			global output_file, job_status,temp_dir
+			if job_status == "running":
 				return jsonify({"error": "A job is already running."}), 409
 			output_file = None
 			data = request.json
 			thread = threading.Thread(target=self.run_pipeline, args=(data,), daemon=True)
 			thread.start()
-			return {"job_running": job_running, "output_file": output_file, "temp_dir": temp_dir}
+			return {"job_status": job_status, "output_file": output_file, "temp_dir": temp_dir}
 
 
 		@self.app.route("/log")
@@ -135,26 +143,37 @@ class UI:
 		@self.app.route("/status")
 		def status():
 			log("receiving status request...")
-			status = {"job_running": job_running, "output_file": output_file, "temp_dir": temp_dir}
+			status = {"job_status": job_status, "output_file": output_file, "temp_dir": temp_dir}
 			log("status: " + str(status))
 			return status
 
 		@self.app.route("/download")
 		def download():
-			log("downloading file...")
 			global output_file, temp_dir
+			log(f"downloading file... {output_file}")
 			if not output_file or not os.path.exists(output_file):
 				return "No file ready.", 404
 
-			path = output_file
+			path_list = output_file.split("/")[1:]
+			path = "/".join(path_list)
 			tmp  = temp_dir
 
 			return send_file(
 				path,
 				as_attachment=True,
-				download_name="timelapse.mp4",
+				download_name="output.mp4",
 				mimetype="video/mp4",
 			)
+		
+		@self.app.route("/get_cta")
+		def get_cta_url():
+			
+			res = requests.post("http://localhost:5500/message_bus", json={
+				"listener": "config_manager",
+				"event": "get",
+				"data": "cta_url"
+			})	
+			return res.text
 
 	def run(self):
 		#open browser

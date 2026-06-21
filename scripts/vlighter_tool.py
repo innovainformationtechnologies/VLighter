@@ -218,7 +218,6 @@ def run_pipeline(pipeline, output_dir) -> str:
         }
     }
     '''
-    timelapse_path = os.path.join(os.getcwd(), "temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -240,18 +239,21 @@ def run_pipeline(pipeline, output_dir) -> str:
                 download_video_clip(args["url"], args["start"], args["end"], clip_path)
             case "make_timelapse":
                 make_timelapse(clip_path, args["speed"], timelapse_path)
+                return {"success":True, "output_file":str(timelapse_path)}
             case "make_podcast":
                 make_podcast(clip_path, podcast_path)
+                return {"success":True, "output_file":str(podcast_path)}
             case "make_clip":
                 make_clip(clip_path)
+                return {"success":True, "output_file":str(clip_path)}
             case "make_short":
                 make_short(clip_path, args["blur"], args["gamma"], short_path)
+                return {"success":True, "output_file":str(short_path)}
 
-    # open file explorer
-    import webbrowser
-    webbrowser.open(str(out_dir))
+    # # open file explorer
+    # import webbrowser
+    # webbrowser.open(str(out_dir))
 
-    return {"success":True, "output":str(out_dir)}
 
 
 
@@ -267,7 +269,7 @@ if __name__ == "__main__":
         "make_clip":{"func":make_clip, "args":["clip_path"]},
         "make_short":{"func":make_short, "args":["clip_path", "blur", "gamma"]}
     }
-    temp_dir = os.path.join(os.getcwd(), "temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
+    temp_dir = os.path.join("temp", f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}")
     out_dir = Path(temp_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 

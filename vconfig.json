@@ -1,7 +1,8 @@
 {
     "debug": false,
     "follow_schedule": false,
-    "initial_segment": "Vlighter",
+    "initial_segment": "Vlighter Dev Mode",
+    "cta_url": "https://donate.stripe.com/14kaFI9iH5iieo86oo",
     "weekly_schedule": {
         "Monday": {
             "segments": [
@@ -79,29 +80,16 @@
     "segment_data": [
         {
             "name": "Test",
-            "duration": 1,
-            "stream_data": {
-                "title": "Test Stream - Onyx Live 24/7",
-                "description": "This is a test stream for debugging purposes.",
-                "privacy": "public"
-            },
-            "playlist": "\\\\192.168.0.4\\extreme_ssd\\onyx\\stream\\audio\\chill_2026_4_17.xspf",
-            "gallery": "\\\\192.168.0.4\\extreme_ssd\\onyx\\stream\\visual\\gallery_1",
-            "info_text": {
-                "cta_1": "Testing the Vorchestra Automation system",
-                "cta_2": "Powered by Innova"
-            },
+
             "task_list": [
                 "ui",
-                "gallery",
-                "obs",
-                "obs_start",
-                "stream_restart"
+                "test_task"
             ]
         },
         {
-            "name": "UI",
+            "name": "Vlighter Dev Mode",
             "task_list": [
+                "vlighter",
                 "ui"
             ]
         },

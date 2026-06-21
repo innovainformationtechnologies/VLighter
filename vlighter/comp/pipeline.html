@@ -13,7 +13,7 @@
 		</div>
 		<div id="output_control">Select a format</div>
 		<button class="btn-primary" id="runBtn"><div>▶ RUN PIPELINE</div></button>
-		<p class="text accent center" id="status" hidden>Your folder will open when ready</p>
+		<p class="text accent center" id="status" hidden>Your download will start automatically</p>
     </div>
     <style>
 		
@@ -48,7 +48,11 @@
     <script>
         (function(){
 			let status = null
+			let intervalId = null
 			let selected_format = null;
+			let loadComponent, componentRegistry
+
+			
 			async function build_pipeline_payload() {
 				console.log("build_pipeline_payload ", selected_format)
 				let source = JSON.parse(localStorage.getItem('source'));
@@ -72,11 +76,7 @@
 			}
 
 			async function set_output(node){
-				let loadComponent, componentRegistry
-				await import("./scripts/util.js").then((module) => {
-					loadComponent = module.loadComponent;
-					componentRegistry = module.componentRegistry
-				});
+				
 				let output_control = document.querySelector("#output_control")
 				output_control.innerHTML = "";	
 				await loadComponent(node, output_control)
@@ -91,22 +91,63 @@
 				// }
 			}
 
+
+			async function start_download(output_file, element) {
+				// let loadComponent,componentRegistry
+				// await import("./scripts/util.js").then((module) => {
+				// 	loadComponent = module.loadComponent
+				// 	componentRegistry = module.componentRegistry
+				// })
+				// download workflow
+				// show CTA popup with thanks, monetization, and a link to download
+				await loadComponent("popup", element)
+				element.id = "popup_01"
+				componentRegistry.get("popup")({id: element.id, output_file: output_file})
+				document.querySelector("#body").appendChild(element)
+			}
+
 			async function get_status(element) {
 				let s = await fetch("/status")
 				status = await s.json()
-				element.querySelector("#runBtn").disabled = !status.job_running
-				if (status.job_running) {
-					element.querySelector("#runBtn").innerHTML = " ⏲ RUNNING"
-					element.querySelector("#runBtn").disabled = true
-					element.querySelector("#status").hidden = false
-				} else {
-					element.querySelector("#runBtn").innerHTML = "▶ RUN PIPELINE"
-					element.querySelector("#runBtn").disabled = false
-					element.querySelector("#status").hidden = true
+				switch (status.job_status) {
+					case "success":
+						clearInterval(intervalId)
+						element.querySelector("#runBtn").innerHTML = "✅ SUCCESS"
+						element.querySelector("#runBtn").disabled = false
+						element.querySelector("#status").hidden = true
+						// download workflow
+						let popup = document.createElement("div")
+						element.appendChild(popup)
+						start_download(status.output_file, popup)
+						break;
+					case "error":
+						clearInterval(intervalId)
+						element.querySelector("#runBtn").innerHTML = "❌ ERROR"
+						break;
+					case "running":
+						element.querySelector("#runBtn").innerHTML = " ⏲ RUNNING"
+						element.querySelector("#runBtn").disabled = true
+						element.querySelector("#status").hidden = false
+						break;
+					case "idle":
+						clearInterval(intervalId)
+						element.querySelector("#runBtn").innerHTML = "▶ RUN PIPELINE"
+						element.querySelector("#runBtn").disabled = false
+						element.querySelector("#status").hidden = true
+						break;
+					default:
+						element.querySelector("#runBtn").innerHTML = "▶ RUN PIPELINE"
+						element.querySelector("#runBtn").disabled = false
+						element.querySelector("#status").hidden = true
 				}
 			}
-            function init(data){
+            async function init(data){
                 const element = document.getElementById(`${data.id}`)
+
+				await import("./scripts/util.js").then((module) => {
+					loadComponent = module.loadComponent;
+					componentRegistry = module.componentRegistry
+				});
 				
 				element.querySelector("#add_node").onclick = () => {
 					const node = element.querySelector("#node_select").value
@@ -119,12 +160,14 @@
 						return
 					}
 					build_pipeline_payload()
-					setInterval(() => {
-						get_status(element)
-					}, 10000)
 					get_status(element)
+					intervalId = setInterval(() => {
+						get_status(element)
+					}, 1000)
 				}
-				get_status(element)
+				intervalId = setInterval(() => {
+					get_status(element)
+				}, 5000)
             }
 
             window.componentRegistry.register("pipeline", init)

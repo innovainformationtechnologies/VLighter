@@ -2,7 +2,7 @@ let config = await fetch("./static/config.json").then(response => response.json(
 let getCSVContents, buildPage
 
 if (config.debug) {
-  await import("./scritps/util.js").then(module => {
+  await import("./scripts/util.js").then(module => {
     getCSVContents = module.getCSVContents;
     buildPage = module.buildPage
   });

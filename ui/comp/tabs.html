@@ -1,0 +1,159 @@
+<div class="tabs_container">
+    <div class="tabs_body">
+		<div class="controls card flex row spread">
+			<h1 class="title">Vorchestra</h1>
+			<!-- <input type="button" class="btn-secondary add_node" value="Home" id="hero">
+			<input type="button" class="btn-secondary add_node" value="SheetSites" id="demo">
+			<input type="button" class="btn-secondary add_node" value="Tools" id="about">
+			<input type="button" class="btn-secondary add_node" value="Join Us" id="affiliate"> -->
+		</div>
+		<div id="output_control" class="card"></div>
+    </div>
+    <style>
+		.logo{
+			width: 4rem !important;
+			object-fit: contain;
+			margin: auto;
+		}
+		
+		.tabs_body{
+			padding: 1rem;
+			width: 100vw;
+			/* height: fit-content; */
+			/* width: fit-content; */
+			margin: auto auto;
+			display: flex;
+			flex-direction: column;
+			background-color: none !important;
+			&>.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+			width: 100vw;
+			&>*{
+				width: 100%
+			}
+		}
+		}
+		.tabs_container{
+			height: fit-content;
+		}
+		#output_control{
+			margin: auto auto;
+			width: 90vw;
+			height: fit-content;
+			border: 1px solid var(--border);
+    		border-radius: var(--radius);
+			padding: 1rem;
+			overflow: auto;
+		}
+		#node_select{
+			width: fit;
+		}
+		@media screen and (max-width: 1000px) {
+			.tabs_body{
+				height: 100vh;
+				width: 100%;
+			}
+			.logo{
+				width: 8rem !important;
+			}
+			#output_control{
+				height: 100vh;
+			}
+		}
+    </style>
+    <script>
+        (function(){
+			let status = null
+			let selected_format = null;
+			function add_tab(data){
+				console.log("adding tab", data)
+				let input = document.createElement("input")
+				input.type = "button"
+				input.value = data.title
+				input.id = data.component
+				input.classList.add("add_node", "btn-secondary")
+				input.onclick = () => {
+					set_tab(input.id, data.id)
+				}
+				document.querySelector(".controls").appendChild(input)
+								
+			}
+			function add_tabs(data, element){
+				current_tab = {}
+				idx = 1
+				Object.keys(data).forEach((item, index) => {
+					if (item.startsWith("tab_")) {
+						console.log("item ", item)
+						let meta = item.split("_")
+						if (meta[1] != idx){
+							idx = meta[1]
+						}
+						current_tab[meta[2]] = data[item]
+						if (meta[2] == "id"){
+							console.log("creating tab", current_tab)
+							add_tab(current_tab)
+							current_tab = {}
+						}
+					}
+				})
+			}
+			async function set_tab(node, id){
+				let loadComponent, componentRegistry
+				await import("./scripts/util.js").then((module) => {
+					loadComponent = module.loadComponent;
+					componentRegistry = module.componentRegistry
+				});
+				let output_control = document.querySelector("#output_control")
+				output_control.innerHTML = "";	
+				await loadComponent(node, output_control)
+				data = {id: "output_control"}
+				let component_data = JSON.parse(localStorage.getItem(id))
+				component_data.id = data.id
+				console.log("component data ", component_data)
+				componentRegistry.get(node)(component_data)
+				selected_format = node
+				// let close_btn = document.createElement("button")
+				// close_btn.classList.add("btn-primary")
+				// close_btn.innerHTML = "<span class=\"text\">x</span>"
+				// close_btn.onclick = () => {
+				// 	nodes.splice(nodes.indexOf(node), 1)
+				// 	close_btn.parentElement.remove()
+				// }
+			}
+
+			function select_random_tab(arr, element) {
+				const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+				let tab = getRandomItem(arr);
+				set_tab(tab)
+				element.querySelectorAll(".add_node").forEach(b => {
+					b.classList.remove("active")
+					if (b.id == tab) {
+						b.classList.add("active")
+					}
+				})
+			}
+
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				element.querySelectorAll(".add_node").forEach(b => {
+					b.onclick = () => {
+						set_tab(b.id)
+						b.classList.add("active")
+					}
+					b.onmouseout = () => {
+						b.classList.remove("active")
+					}
+				})
+				
+				add_tabs(data)
+				set_tab(data.default, data.default_id)
+            }
+
+            window.componentRegistry.register("tabs", init)
+        })()
+    </script>
+</div>

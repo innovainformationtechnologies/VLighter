@@ -1,17 +1,21 @@
 <div class="header_container">
     <div class="header_body">
 		<h1 class="title">VLighter</h1>
-		<span class="text">Stream VOD Highlight Tool</span>
-		<button class="btn-primary" id="donate">🎁</button>
+		<span class="text muted desc">Stream VOD Highlight Tool</span>
+		<button  class="btn-secondary" id="help"><span class="text">🛈︎</span></button>
     </div>
     <style>
 		.header_body{
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
+			gap: 1rem;
 			align-items: center;
 			margin: auto auto;
 			padding: 1rem 2rem;
+			&>.title{
+				margin: 2rem !important;
+			}
 		}
 		.header_container{
 			position: static;
@@ -21,13 +25,15 @@
 			width: 100vw;
 			z-index: 100;
 		}
+		.desc{
+			min-width: fit-content;
+		}
     </style>
     <script>
         (function(){
 			
             function init(data){
                 const element = document.getElementById(`${data.id}`)
-				element.querySelector("#donate").onclick = () => {location.href = String(data.donation_url)}
             }
 
             window.componentRegistry.register("header", init)

@@ -1,0 +1,67 @@
+<div class="popup_container">
+	<div class="popup_close">X</div>
+    <div class="popup_body card">
+		<h1 class="title">Thanks for using VLighter</h1>
+		<div id="cta">VLighter is free to use and open source, running on a decentralized network where each node is independently operated and self-hosted. Each donation goes directly to the node operator of the server you are using.</div>
+		<a class="btn-primary" id="donate">Support Your Server ❤️</a>
+		<a  class="btn-secondary" id="download">Click Here if your download doesn't start automatically</a>
+    </div>
+    <style>
+		.popup_body{
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+			align-content: center;
+			align-items: center;
+			margin: auto auto;
+			height: 50vh;
+			text-align: center;
+			&>*{
+				width: 80%;
+			}
+			&>iframe{
+				height: 30vh;
+			}
+		}
+		.popup_container{
+			position: absolute;
+			background-color: #000000AA;
+			top: 0;
+			left: 0;
+			right: 0;
+			width: 100vw;
+			height: 100vh;
+			z-index: 100;
+		}
+    </style>
+    <script>
+        (function(){
+			async function get_cta_url(){
+				let response = await fetch("/get_cta")
+				return await response.text()
+			}
+
+            async function init(data){
+				const element = document.getElementById(`${data.id}`)
+				console.log(element)
+				element.querySelector(".popup_close").onclick = () => {
+					element.remove()
+				}
+				// open in new tab
+				location.href = "/download"
+				let dl_button = document.getElementById("download")
+				dl_button.href = "/download"
+				let filename = data.output_file.split("/")[3]
+				console.log(filename)
+				dl_button.download = `${filename}`
+				await get_cta_url().then(url => {
+					element.querySelector("#donate").href = url
+					 
+				})
+            }
+
+            window.componentRegistry.register("popup", init)
+        })()
+    </script>
+</div>

@@ -1,0 +1,77 @@
+<div class="donation_url_container">
+    <div class="donation_url_body">
+		<div>
+			<h2>Your Donation url</h2>
+			<p class="muted">This is how you will receive donations for providing the service</p>
+		</div>
+		<div class="controls">
+			<input type="text" id="donation_url_input" placeholder="Donation url">
+			<button class="btn-primary" id="update_button">Update</button>
+		</div>
+		
+    </div>
+    <style>
+		.basic_info{
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: flex-start;
+			padding: 1rem;
+			&>div{
+				flex: 1;
+				margin: 0 1rem;
+			}
+		}
+		.controls{
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-start;
+			align-items: center;
+			gap: 2rem;
+		}
+		.donation_url_body{
+			padding: 1rem;
+		}
+        .block_image{
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 1rem;
+        }
+    </style>
+    <script>
+        (function(){
+			function get_donation_url(element){
+				fetch("/get_cta")
+				.then(response => response.text())
+				.then(text => 
+					element.querySelector("#donation_url_input").value = text
+				)
+			}
+			
+            function init(data){
+                const element = document.getElementById(`${data.id}`)
+				get_donation_url(element)
+				element.querySelector("#update_button").addEventListener("click", () => {
+					fetch("http://localhost:5500/message_bus",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								listener: "config_manager",
+								event: "set",
+								data: element.querySelector("#donation_url_input").value
+							})
+						}
+					)
+					get_donation_url(element)
+				})
+        
+            }
+
+            window.componentRegistry.register("donation_url", init)
+        })()
+    </script>
+</div>

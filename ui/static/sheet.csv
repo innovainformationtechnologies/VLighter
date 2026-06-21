@@ -1,9 +1,8 @@
-component,background,text,primary_color,accent_color,font_family_heading,font_family_body,font_size_base,title
-theme,#010104,#e3e4f5,#34003b,#b965c5,Impact,Arial,10,Vorchestra
+theme,background,text,primary_color,accent_color,font_family_heading,font_family_body,font_size_base,title,surface,border,muted,danger
+default,#0d0d0d,#e8e8e8,#c8f542,#f5d442,Arial,Arial,10,VLighter Admin,#141414,#262626,#777,#ff4444
 ,,,,,,,,
-component,id,,,,,,,
-header,header_01,,,,,,,
-current_segment,current_segment_01,,,,,,,
-tasks,tasks_01,,,,,,,
-schedule,schedule_01,,,,,,,
-log,log_01,,,,,,,
+component,id,tab_1_title,tab_1_component,tab_1_id,tab_2_title,tab_2_component,tab_2_id,default,default_id,,
+tabs,tabs_01,Home,donation_url,don_01,Settings,log,log_01,donation_url,don_01,,
+,,,,,,,,,,,,,,,,,
+data,id,
+donation_url,don_01,

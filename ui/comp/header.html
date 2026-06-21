@@ -2,10 +2,6 @@
     <div class="header_body">
 		<h1 class="title">Vorchestra</h1>
 		<span class="text">Desktop Automation System</span>
-		<div>
-			<label for="autostart" class="text">Follow Schedule</label>
-			<input type="checkbox" id="autostart" name="autostart" class="btn-primary">
-		</div>
     </div>
     <style>
 		.header_body{
@@ -26,48 +22,10 @@
     </style>
     <script>
         (function(){
-			function set_autostart(){
-				fetch("http://localhost:5000/message_bus",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({
-							listener: "config_manager",
-							event: "set",
-							data: {
-								key: "follow_schedule",
-								value: document.getElementById("autostart").checked
-							}
-						})
-					}
-				).then(_ => {
-						console.log("autostart set to", document.getElementById("autostart").checked)
-					})
-			}
-			function get_autostart(element){
-				fetch("http://localhost:5000/message_bus",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({
-							listener: "config_manager",
-							event: "get",
-							data: "follow_schedule"
-						})
-					}
-				).then(res => {
-						console.log(res)
-						element.querySelector("#autostart").checked = res.autostart_schedule
-					})
-			}
+
             function init(data){
                 const element = document.getElementById(`${data.id}`)
-				element.querySelector("#autostart").onchange = set_autostart
-				get_autostart(element)
+				
             }
 
             window.componentRegistry.register("header", init)

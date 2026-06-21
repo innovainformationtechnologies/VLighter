@@ -22,31 +22,36 @@ class UI:
 		@self.app.route("/")
 		def index():
 			return self.app.send_static_file("index.html")
-
-		@self.app.route("/update_config", methods=["POST"])
-		def update_config():
-			key = request.form.get("key")
-			value = request.form.get("value")
+		@self.app.route("/get_cta")
+		def get_cta():
 			# Here you would update your config with the new value
 			# send http request to message bus to update config
-			http_response = requests.post("http://localhost:5001/message_bus", json={
+			res = requests.post("http://localhost:5500/message_bus", json={
 				"listener": "config_manager",
-				"event": "set",
+				"event": "get",
+				"data": "cta_url"
+			})	
+			return res.text
+		@self.app.route("/log", methods=["POST"])
+		def log():
+			# Here you would update your config with the new value
+			# send http request to message bus to update config
+			http_response = requests.post("http://localhost:5500/message_bus", json={
+				"listener": "logger",
+				"event": "read",
 				"data": {
-					"key": key,
-					"value": value
 				}
 			})
-			return http_response
+			return http_response.text
 
 	def run(self):
 		#open browser
 		host = "0.0.0.0"
-		port = 5501
+		port = 5502
 		f = f"http://{host}:{port}"
-		# import webbrowser
-		# webbrowser.open(f)
-		self.app.run(host=host, port=port, debug=True)
+		import webbrowser
+		webbrowser.open(f)
+		self.app.run(host=host, port=port, debug=False)
 
 	def stop(self):
 		self.app.stop()

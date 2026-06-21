@@ -29,6 +29,7 @@ h1{
     font-size: var(--font_size_h1) !important;
 }
 h2{
+    color: var(--accent_color);
     font-size: var(--font_size_h2) !important;
 }
 h3{
@@ -41,6 +42,25 @@ p, .text{
 	font-size: var(--font_size_base) !important;
 	color: var(--text);
 	font-family: var(--font_family_body) !important;
+}
+label{
+    font-size: var(--font_size_base) !important;
+    font-weight: bold;
+    color: var(--muted);
+    font-family: var(--font_family_body) !important;
+}
+.hint{
+    font-size: var(--font_size_base) !important;
+    font-weight: bold;
+    color: var(--muted);
+    font-style: italic;
+}
+.muted{
+    color: var(--muted) !important;
+    font-weight: bolder;
+}
+.accent{
+    color: var(--accent_color) !important;
 }
 .spacer{
     width: 100%;
@@ -71,21 +91,72 @@ nav, #nav, .navbar-default, .navbar-static-top{
     color: var(--text) !important;
     text-shadow: none;
 }
+.btn,button, input, optgroup, select, textarea{
+    box-shadow: none !important;
+    padding: 0.5rem 2rem !important;
+    transition: all 0.2s ease-in-out !important;
+    border-radius: calc(var(--radius)* 0.3) !important;
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    &:hover{
+        background-color: var(--primary_color) !important;
+        color: var(--background) !important;
+    }
+    &:focus{
+        background-color: var(--surface) !important;
+        color: var(--text) !important;
+    }
+    &[type=text]{
+        width: 100%;
+    }
+    &:disabled{
+        background-color: var(--surface) !important;
+        color: var(--muted) !important;
+    }
+
+}
+select{
+    width: 100%;
+}
 .btn{
     font-weight: bolder;
 }
 .btn-secondary{
-    color: var(--text) !important;
+    color: var(--primary_color) !important;
+    background-color: transparent !important;
+    &:hover{
+        color: var(--background) !important;
+        background-color: var(--primary_color) !important;
+    }
+    &:active, &.active{
+        color: var(--background) !important;
+        background-color: var(--primary_color) !important;
+    }
+
 }
 
 .btn-primary{
     background: var(--primary_color);
-    color: var(--accent_color);
+    color: var(--background);
     font-size: var(--font_size_h3);
     border: none;
-    border-radius: 0.5rem !important;
+    /* border-radius: 0.5rem !important; */
 }
-
+.btn-danger{
+    background: var(--danger);
+    color: var(--text);
+    font-size: var(--font_size_h3);
+    border: none;
+    /* border-radius: 0.5rem !important; */
+}
+.card {
+    max-width: clamp(80rem, 50%, 80vw);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: auto auto;
+}
 #btn-discord, &>*{
     color: var(--theme-primary);
 }    
@@ -108,4 +179,7 @@ nav, #nav, .navbar-default, .navbar-static-top{
 }
 .jumbotron{
     background-color: var(--theme-transparent) !important;
+}
+#power{
+    color: var(--primary_color) !important;
 }

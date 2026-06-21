@@ -1,11 +1,13 @@
 <div class="log_container">
     <div class="log_body">
-		<details id="log_dropdown">
-			<summary id="log" >
-				<h1 class="title">Log</h1><button class="btn-primary" id="clear_log"><span class="text">Clear Logs</span></button>
-			</summary>
-			<p class="log_text"></p>
-		</details>
+		<h2>System Logs</h2>
+		<p class="text muted">See what's going on</p>
+		<div id="log" class="controls">
+			<button class="btn-primary" id="clear_log">Clear Logs</button>
+			<button class="btn-primary" id="clear_cache">Clear Cache</button>
+		</div>
+		<p class="log_text"></p>
+		
     </div>
     <style>
 		.log_body{
@@ -25,18 +27,7 @@
     <script>
         (function(){
 			async function get_log(element){
-				await fetch("http://localhost:5000/message_bus",
-					{
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({
-							listener: "logger",
-							event: "read",
-						})
-					}
-				)
+				await fetch("/log")
 					.then(response => response.text())
 					.then(text => {
 						console.log(text)
@@ -47,7 +38,7 @@
             function init(data){
                 const element = document.getElementById(`${data.id}`)
 				element.querySelector("#clear_log").addEventListener("click", async () => {
-					await fetch("http://localhost:5000/message_bus",
+					await fetch("http://localhost:5500/message_bus",
 						{
 							method: "POST",
 							headers: {
@@ -62,9 +53,10 @@
 					)
 					get_log(element)
 				})
-				element.querySelector("#log_dropdown").addEventListener("click", () => {
+				setInterval(() => {
 					get_log(element)
-				})
+				}, 5000)
+				get_log(element)
             }
 
             window.componentRegistry.register("log", init)
