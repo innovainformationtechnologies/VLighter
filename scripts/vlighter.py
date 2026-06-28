@@ -109,6 +109,12 @@ class UI:
 		def index():
 			return self.app.send_static_file("index.html")
 
+		@self.app.route("/get_metadata", methods=["POST"])
+		def get_metadata():
+			data = request.json
+			res = vlighter_tool.get_video_metadata(data["url"])
+			return res
+
 		@self.app.route("/run", methods=["POST"])
 		def run():
 			log("receiving run request...")

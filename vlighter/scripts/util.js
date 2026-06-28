@@ -1,30 +1,30 @@
 
-async function navigateTo(page){
-   let url = new URLSearchParams(location.search)
-    const header = document.querySelector("header")
-    url.set("page", page)
-    console.log(url.toString())
-    switch (page) {
-        case 'about':
-            await loadPage('about');
-            header.style.display = "none";
-            break;
-        case 'home':
-            await loadPage('home');
-            break;
-        case 'sounds':
-            await loadPage("bitcrusher")
-            break;
-        case 'gear':
-            await loadComponent("catalog");
-            break;
-        case 'contact':
-            await loadPage("contact");
-            break;
-        default:
-            await loadPage('home');
-    }
-}
+// async function navigateTo(page){
+//    let url = new URLSearchParams(location.search)
+//     const header = document.querySelector("header")
+//     url.set("page", page)
+//     console.log(url.toString())
+//     switch (page) {
+//         case 'about':
+//             await loadPage('about');
+//             header.style.display = "none";
+//             break;
+//         case 'home':
+//             await loadPage('home');
+//             break;
+//         case 'sounds':
+//             await loadPage("bitcrusher")
+//             break;
+//         case 'gear':
+//             await loadComponent("catalog");
+//             break;
+//         case 'contact':
+//             await loadPage("contact");
+//             break;
+//         default:
+//             await loadPage('home');
+//     }
+// }
 
 async function loadPage(comp) {
     try {
@@ -70,7 +70,7 @@ async function loadComponent(comp, parent) {
 
     } catch (error) {
         console.error(error);
-        div.innerHTML = `<p>Error loading ${comp} page.</p>`;
+        div.innerHTML = `<p>Error loading ${comp} component</p>`;
     }
     parent.appendChild(div)
     return div
@@ -90,13 +90,13 @@ async function getCSVContents(local, remote) {
 function adjustFontSizeOnResize(item) {
   let on_desktop = window.innerWidth > 1000
   console.log("on_desktop: ", on_desktop)
-  document.body.style.setProperty('--font_size_small', `${item.font_size_base*0.5}px`);
-  document.body.style.setProperty('--font_size_base', `${item.font_size_base}px`);
-  document.body.style.setProperty('--font_size_h1', `${item.font_size_base*2}px`);
-  document.body.style.setProperty('--font_size_h2', `${Math.floor(item.font_size_base*1.5)}px`);
-  document.body.style.setProperty('--font_size_h3', `${Math.floor(item.font_size_base*1.25)}px`);
-  document.body.style.setProperty('--font_size_h4', `${item.font_size_base}px`);
-  document.body.style.setProperty('--font_size_title', `${item.font_size_base*4}px`);
+  document.body.style.setProperty('--font_size_small', `${item.font_size_base}px`);
+  document.body.style.setProperty('--font_size_base', `${item.font_size_base*3}px`);
+  document.body.style.setProperty('--font_size_h1', `${item.font_size_base*4}px`);
+  document.body.style.setProperty('--font_size_h2', `${Math.floor(item.font_size_base*2.5)}px`);
+  document.body.style.setProperty('--font_size_h3', `${Math.floor(item.font_size_base*1.5)}px`);
+  document.body.style.setProperty('--font_size_h4', `${item.font_size_base*3}px`);
+  document.body.style.setProperty('--font_size_title', `${item.font_size_base*6}px`);
   if (on_desktop) {
     document.body.style.setProperty('--font_size_small', `${item.font_size_base}px`); 
     document.body.style.setProperty('--font_size_base', `${item.font_size_base*2}px`); 
@@ -116,7 +116,7 @@ function buildPage(csvData) {
     data.forEach(async (item) => {
       console.log("adding",item)
 
-      if (item.component == "theme"){
+      if (item.theme){
           // for each key in item, set the corresponding css variable
           for (const [key, value] of Object.entries(item)) {
             console.log("setting",key,"to", value)
@@ -144,6 +144,11 @@ function buildPage(csvData) {
           // document.getElementById("title").innerText = item.title
           return
       }
+      if (item.data){
+        console.log("item data", item)
+        localStorage.setItem(item.id, JSON.stringify(item))
+        return
+      }
       let slot=document.createElement("div")
       slot.id = item.id
       slot.classList.add("slot")
@@ -151,6 +156,7 @@ function buildPage(csvData) {
       if ("parent_id" in item && item.parent_id != null ){
         console.log("parent id", item.parent_id)
         document.getElementById(item.parent_id).appendChild(slot)
+        slot.style.maxWidth = "fit-content"
         await loadComponent(item.component, document.getElementById(slot.id)).then((comp) => {
           window.componentRegistry.get(item.component)(item);
         })
@@ -168,8 +174,10 @@ function buildPage(csvData) {
     document.getElementById("body").appendChild(subfooter)
     subfooter.innerHTML = `<a id="power" href="https://innovainformationtechnologies.netlify.app/">Powered By Innova</a>`
     subfooter.style.color = "var(--primary_color)"
+    subfooter.style.position = "relative"
+    subfooter.style.width = "100vw"
     subfooter.style.textAlign = "center"
-    subfooter.style.margin = "2rem auto"
+    
 }
 
 
@@ -206,8 +214,20 @@ function parseCSV(csvText) {
         row.splice(i, row.length - i);
       }
     })
-    console.log("parsed row",row)
     if (row[0] == "component"){ // set headers
+      console.log("parsed component row",row)
+      // console.log(row[0], "set headers")
+      headers = row
+      return
+    }
+    if (row[0] == "data"){ // set headers
+      console.log("parsed data row",row)
+      // console.log(row[0], "set headers")
+      headers = row
+      return
+    }
+    if (row[0] == "theme"){ // set headers
+      console.log("parsed theme row",row)
       // console.log(row[0], "set headers")
       headers = row
       return

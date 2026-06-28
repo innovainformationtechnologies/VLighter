@@ -10,9 +10,9 @@ FFMPEG = "ffmpeg"
 if ON_WINDOWS:
     FFMPEG = os.path.join(os.getcwd(), "bin", "ffmpeg.exe")
 
-def run_cmd(cmd):
+def run_cmd(cmd, capture_output=False):
     print("Running command: ", " ".join(cmd))
-    result = subprocess.run(cmd, text=True)
+    result = subprocess.run(cmd, text=True, capture_output=capture_output)
     if result.returncode != 0:
         raise RuntimeError(
             f"Command failed with return code {result.returncode}\n"
@@ -20,6 +20,16 @@ def run_cmd(cmd):
         )
     return result
 
+def get_video_metadata(url):
+    cmd = [
+        "yt-dlp",
+        "--dump-json",
+        "--no-playlist",
+        url,
+    ]
+    result = run_cmd(cmd, capture_output=True)
+    print("\n\n\n_____METADATA_______\n\n\n", result.stdout)
+    return result.stdout
 
 def import_video_clip(clip_path: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
     cmd = [
@@ -49,46 +59,6 @@ def download_video_clip(video_url: str, start_time: str, end_time: str, output_p
     print("Clip downloaded.")
     return output_path
 
-def download_video_clip_windows(video_url: str, start_time: str, end_time: str, output_path: str = "clip.mp4") -> str:
-        temp_template = output_path.replace(".mp4", "_%(id)s.%(ext)s")
-
-        base_cmd = [
-            sys.executable, "-m", "yt-dlp",
-            "--ffmpeg-location", FFMPEG,
-            "--extractor-args", "youtube:player_client=tv_embedded,web_creator",
-            "--download-sections", f"*{start_time}-{end_time}",
-            "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best",
-            "-S", "vcodec:h264,res,acodec:m4a,ext",
-            "--merge-output-format", "mp4",
-            "--no-part",
-            "--fixup", "never",
-            "-o", temp_template,
-            video_url,
-        ]
-
-        def try_download(cmd):
-            run_cmd(cmd)
-            # Find whatever yt-dlp named the file and rename it
-            pattern = output_path.replace(".mp4", "_*.mp4")
-            matches = glob.glob(pattern)
-            if matches:
-                os.rename(matches[0], output_path)
-
-        try:
-            try_download(base_cmd)
-            return output_path
-        except Exception:
-            pass
-
-        for browser in ["firefox", "chrome", "edge"]:
-            try:
-                print(f"Trying {browser}")
-                try_download(base_cmd + ["--cookies-from-browser", browser])
-                return output_path
-            except Exception:
-                continue
-
-        raise RuntimeError("Failed to download video. Please make sure you are signed into YouTube in your browser.")
 
 def make_timelapse(
     clip_path: str,
@@ -168,9 +138,12 @@ def make_short(
             "[bg][fg]overlay=(W-w)/2:(H-h)/2[out]"
         ),
         "-map", "[out]",
+        "-map", "0:a",
         "-c:v", "libx264",
         "-preset", "veryfast",
         "-crf", "23",
+        "-c:a", "aac",
+        "-b:a", "192k",
         output_path,
     ]
     run_cmd(cmd)

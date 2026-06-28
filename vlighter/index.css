@@ -183,3 +183,37 @@ select{
 #power{
     color: var(--primary_color) !important;
 }
+
+.flex{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    &.row{
+        flex-direction: row;
+        width: fit-content;
+    }
+    &.column{
+        flex-direction: column;
+        height: fit-content;
+    }
+    &.center{
+        justify-content: center;
+        align-items: center;
+    }
+    &.spread{
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width:1000px) {
+    .flex{
+        &.row.swap{
+            flex-direction: column;
+        }
+        &.column.swap{
+            flex-direction: row;
+        }
+    }
+}

@@ -118,7 +118,10 @@
 						// download workflow
 						let popup = document.createElement("div")
 						element.appendChild(popup)
-						start_download(status.output_file, popup)
+						// only download if check_download is true
+						if (localStorage.getItem("check_download") === "true") {
+							start_download(status.output_file, popup)
+						}
 						break;
 					case "error":
 						clearInterval(intervalId)
@@ -159,6 +162,7 @@
 						alert("Please select a format")
 						return
 					}
+					let check_download = localStorage.setItem("check_download", "true") // tell browser to download file when done
 					build_pipeline_payload()
 					get_status(element)
 					intervalId = setInterval(() => {
