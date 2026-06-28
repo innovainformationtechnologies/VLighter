@@ -32,7 +32,7 @@ class UI:
 				"data": "cta_url"
 			})	
 			return res.text
-		@self.app.route("/log", methods=["POST"])
+		@self.app.route("/log", methods=["GET","POST"])
 		def log():
 			# Here you would update your config with the new value
 			# send http request to message bus to update config

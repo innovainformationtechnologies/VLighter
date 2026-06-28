@@ -1,13 +1,9 @@
 <div class="tabs_container">
     <div class="tabs_body">
-		<div class="controls card flex row spread">
-			<h1 class="title">Vorchestra</h1>
-			<!-- <input type="button" class="btn-secondary add_node" value="Home" id="hero">
-			<input type="button" class="btn-secondary add_node" value="SheetSites" id="demo">
-			<input type="button" class="btn-secondary add_node" value="Tools" id="about">
-			<input type="button" class="btn-secondary add_node" value="Join Us" id="affiliate"> -->
+		<div class="controls flex row spread">
+			<h1 class="title">VLighter Admin</h1>
 		</div>
-		<div id="output_control" class="card"></div>
+		<div id="view" class="card"></div>
     </div>
     <style>
 		.logo{
@@ -15,7 +11,7 @@
 			object-fit: contain;
 			margin: auto;
 		}
-		
+
 		.tabs_body{
 			padding: 1rem;
 			width: 100vw;
@@ -26,26 +22,30 @@
 			flex-direction: column;
 			background-color: none !important;
 			&>.controls{
-			display: flex;
-			flex-direction: row;
-			justify-content: flex-start;
-			align-items: center;
-			gap: 2rem;
-			width: 100vw;
-			&>*{
-				width: 100%
+				display: flex;
+				flex-direction: row;
+				justify-content: flex-start;
+				align-items: center;
+				gap: 2rem;
+				width: 100vw;
+				&>*{
+					width: 100%
+				}
 			}
-		}
 		}
 		.tabs_container{
 			height: fit-content;
 		}
-		#output_control{
+		.tab{
+			width: fit-content !important;
+			padding: 1rem;
+		}
+		#view{
 			margin: auto auto;
 			width: 90vw;
 			height: fit-content;
-			border: 1px solid var(--border);
-    		border-radius: var(--radius);
+			/* border: 1px solid var(--border);
+    		border-radius: var(--radius); */
 			padding: 1rem;
 			overflow: auto;
 		}
@@ -54,15 +54,19 @@
 		}
 		@media screen and (max-width: 1000px) {
 			.tabs_body{
-				height: 100vh;
-				width: 100%;
+				height: min-content !important;
+				max-width: 100vw !important;
+				font-size: var(--font_size_small) !important;
+				&>.controls{
+					gap: 0.5rem;
+				}
 			}
 			.logo{
 				width: 8rem !important;
 			}
-			#output_control{
+			/* #view{
 				height: 100vh;
-			}
+			} */
 		}
     </style>
     <script>
@@ -75,7 +79,7 @@
 				input.type = "button"
 				input.value = data.title
 				input.id = data.component
-				input.classList.add("add_node", "btn-secondary")
+				input.classList.add("tab", "btn-secondary")
 				input.onclick = () => {
 					set_tab(input.id, data.id)
 				}
@@ -101,17 +105,21 @@
 					}
 				})
 			}
-			async function set_tab(node, id){
+			async function set_tab(node, nid){
 				let loadComponent, componentRegistry
 				await import("./scripts/util.js").then((module) => {
 					loadComponent = module.loadComponent;
 					componentRegistry = module.componentRegistry
 				});
-				let output_control = document.querySelector("#output_control")
-				output_control.innerHTML = "";	
-				await loadComponent(node, output_control)
-				data = {id: "output_control"}
-				let component_data = JSON.parse(localStorage.getItem(id))
+				let view = document.querySelector("#view")
+				view.innerHTML = "";	
+				await loadComponent(node, view)
+				data = {id: "view"}
+				let component_data = JSON.parse(localStorage.getItem(nid)) || data
+				// if (component_data == null){
+				// 	return
+				// }
+				console.log("component data ", component_data)
 				component_data.id = data.id
 				console.log("component data ", component_data)
 				componentRegistry.get(node)(component_data)
